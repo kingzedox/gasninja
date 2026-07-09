@@ -1,0 +1,40 @@
+# ──────────────────────────────────────────────
+# GasNinja .gitignore
+# ──────────────────────────────────────────────
+
+# ─── Environment & Secrets ───
+.env
+.env.local
+.env.*.local
+
+# ─── Python ───
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+
+# ─── Virtual Environment ───
+.venv/
+venv/
+env/
+
+# ─── Testing ───
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# ─── IDE ───
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ─── OS ───
+Thumbs.db
