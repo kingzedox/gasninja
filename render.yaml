@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: gasninja-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api_server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: BASE_RPC_URL
+        sync: false
+      - key: PRIVATE_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: CAP_BASE_URL
+        sync: false
+      - key: CAP_WS_URL
+        sync: false
+      - key: CAP_SDK_KEY
+        sync: false

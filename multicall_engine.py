@@ -87,7 +87,9 @@ def _get_account():
     """Derive account from the private key stored in .env."""
     if not PRIVATE_KEY:
         raise EnvironmentError("PRIVATE_KEY is not set in .env")
-    return w3.eth.account.from_key(PRIVATE_KEY)
+    # Auto-prefix 0x if missing (common when copying from MetaMask).
+    key = PRIVATE_KEY if PRIVATE_KEY.startswith("0x") else f"0x{PRIVATE_KEY}"
+    return w3.eth.account.from_key(key)
 
 
 # ──────────────────────────────────────────────
