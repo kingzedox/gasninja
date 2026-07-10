@@ -145,8 +145,16 @@ def seed_demo_data(count: int = 50) -> None:
 
 @app.on_event("startup")
 async def startup():
-    """Seed demo data on startup."""
+    """Seed demo data and start the CAP agent loop."""
     seed_demo_data(50)
+    
+    # Run the CAP agent in the background so they share memory!
+    try:
+        from cap_provider import main as start_agent
+        asyncio.create_task(start_agent())
+        logger.info("🤖 Started CAP agent in background")
+    except Exception as e:
+        logger.error("Failed to start CAP agent: %s", e)
 
 
 @app.get("/api/health")

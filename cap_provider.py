@@ -238,6 +238,46 @@ async def on_order_paid(order_id: str) -> None:
             DeliverOrderRequest(type="SCHEMA", data=delivery_payload),
         )
 
+        # 4 — Update the dashboard API so live trades show up!
+        try:
+            from api_server import bundle_history, BundleRecord
+            from datetime import datetime, timezone
+            
+            # Map action types to a short label
+            types = [a.get("type", "call") for a in actions]
+            label = " + ".join(t.capitalize() for t in types[:3])
+            if len(types) > 3:
+                label += f" (+{len(types)-3} more)"
+
+            # Estimate USD cost (assuming $3200 ETH, 0.005 gwei base fee)
+            gas_price_eth = 0.005 * 1e-9
+            eth_price = 3200.0
+            
+            cost_usd = round(result.gas_used * gas_price_eth * eth_price, 4)
+            individual_gas = result.gas_used + result.gas_savings.gas_saved
+            standard_cost = round(individual_gas * gas_price_eth * eth_price, 4)
+
+            record = BundleRecord(
+                tx_hash=result.tx_hash,
+                actions_count=result.actions_count,
+                gas_used=result.gas_used,
+                gas_saved=result.gas_savings.gas_saved,
+                savings_pct=result.gas_savings.savings_pct,
+                cost_usd=cost_usd,
+                standard_cost_usd=standard_cost,
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                action_labels=label
+            )
+            # Insert at the top of the history list
+            bundle_history.insert(0, record)
+            # Keep history bounded
+            if len(bundle_history) > 200:
+                bundle_history.pop()
+            logger.info("✅ Live bundle added to dashboard API")
+        except Exception as e:
+            logger.error("Failed to add bundle to dashboard: %s", e)
+
+
         logger.info(
             "📦 Order %s delivered  |  saved %s gas (%.1f%%)",
             order_id,
